@@ -48,6 +48,7 @@
 `define OPAND	8'h50
 `define OPOR	8'h51
 `define OPXOR	8'h52
+`define OPDUP   8'h53
 
 `define OPLD	8'h40
 `define OPST	8'h41
@@ -56,14 +57,18 @@
 `define OPANYII	8'h31
 `define OPNEGI	8'h32
 `define OPNEGII	8'h33
-`define OPNEGF
+`define OPNEGF  8'h34
 
-`define OPI2P	8'h20
-`define OPf2PP	8'h21
+//These have been changed, need to update .aik
+`define OPF2I   8'h17
+`define OPI2F   8'h18
+`define OPII2PP 8'h19
+`define OPF2PP	8'h21
 `define OPP2I	8'h22
-`define OPPP2f	8'h23
-`define OPINVF	8'h24
-`define OPINVPP	8'h25
+`define OPPP2F	8'h23
+`define OPPP2II 8'h24
+`define OPINVF	8'h25
+`define OPINVPP	8'h26
 
 `define OPNOT	8'h10
 
@@ -163,28 +168,54 @@ always @(posedge clk) begin
 		jump <= 0;
 	end else begin
 		casez (op1)
-			`OPADDI, `OPADDP: begin r[d1] <= dv1 + sv1; end
-			`OPADDII, `OPADDPP: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
-			`OPMULI, `OPMULP: begin r[d1] <= dv1 * sv1; end
-			`OPMULII, `OPMULPP: begin r[d1] <= dv1 * sv1; r[d1]`HI8 = dv1 `HI8 * sv1`HI8; end
+			`OPADDI: begin r[d1] <= dv1 + sv1; end
+			//IMPLEMENT FLOATING POINT
+			`OPADDF: begin r[d1] <= dv1 + sv1; end
+			`OPADDII: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
+			//IMPLEMENT POSIT
+			`OPADDPP: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
+			`OPMULI: begin r[d1] <= dv1 * sv1; end
+			//NEW
+			`OPMULF: begin r[d1] <= dv1 * sv1; end
+			`OPMULII: begin r[d1] <= dv1 * sv1; r[d1]`HI8 = dv1 `HI8 * sv1`HI8; end
+			//IMPLEMENT POSIT
+			`OPMULPP: begin r[d1] <= dv1 * sv1; r[d1]`HI8 = dv1 `HI8 * sv1`HI8; end
 			`OPAND: begin r[d1] <= dv1 & sv1; end
 			`OPOR: begin r[d1] <= dv1 | sv1; end
 			`OPXOR: begin r[d1] <= dv1 ^ sv1; end
+			//NEW
+			`OPDUP: begin r[d1] <= sv1 end
+			`OPSHI: begin r[d1] <= (sv1 > 32767 ? dv1 >> -sv1 : dv1 << sv1); end
 			`OPNOT: begin r[d1] <= ~dv1; end
 			`OPANYI: begin r[d1] <= (dv1 ? -1 : 0); end
 			`OPANYII: begin r[d1] `HI8 <= (dv1 `HI8 ? -1 : 0); r[d1] `LO8 <= (dv1 `LO8 ? -1 : 0); end
 			`OPLD:  begin r[d1] <= dm[sv1]; end
 			`OPSLTI: begin r[d1] <= dv1 < sv1; end
 			`OPSLTII: begin r[d1] `HIGH8 <= dv1 `HIGH8 < sv1 `HIGH8; r[d1] `LOW8 <= dv1 `LOW8 < sv1 `LOW8; end
-			`OPI2P, `OPII2PP, `OPP2I, `OPPP2II: begin r[d1] <= dv1; end
-			`OPINVP: begin r[d1] <= (dv1 == 1 ? 1 : 0); end
+			//NEW, no OP yet
+			`OPF2I: begin r[d1] <= dv1; end
+			//NEW, no OP yet
+			`OPF2PP: begin r[d1] <= dv1; end
+			//NEW
+			`OPI2F: begin r[d1] <= dv1; end
+			//IMPLEMENT POSIT
+			`OPII2PP: begin r[d1] <= dv1; end
+			//IMPLEMENT POSIT
+			`OPP2II: begin r[d1] <= dv1; end
+			//NEW
+			`OPPP2F: begin r[d1] <= dv1; end
+			//NEW, no OP yet
+			`OPP2I: begin r[d1] <= dv1; end
+			//NEW
+			`OPINVF: begin r[d1] <= (dv1 == 1 ? 1 : 0); end
 			`OPINVPP: begin r[d1] `HI8 <= (dv1 `HI8 == 1 ? 1 : 0); r[d1] `LO8 <= (dv1 `LO8 == 1 ? 1 : 0); end
 			`OPNEGI: begin r[d1] <= -dv1; end
 			`OPNEGII: begin r[d1] `HI8 <= -dv1 `HI8; r[d1] `LO8 <= -dv1 `LO8; end
+			//NEW
+			`OPNEGF: begin r[d1] <= -dv1 end
 			`OPCI8:	begin r[d1] <=  ((const1 & 8'h80) ? 16'hff00 : 0) | (const1 & 8'hff); end
 			`OPCII: begin r[d1] `HI8 <= const1; r[d1] `LO8 <= const1; end
 			`OPCUP: begin r[d1] `HI8 <= const1; end
-			`OPSHI: begin r[d1] <= (sv1 > 32767 ? dv1 >> -sv1 : dv1 << sv1); end
 			`OPSHII: begin r[d1] `LO8 <= (sv1`LO8 > 127 ? dv1 `LO8 >> -sv1`LO8 : dv1 `LO8 << sv1`LO8); 
 				r[d1] `HI8 <= (sv1`HI8 > 127 ? dv1 `HI8 >> -sv1`HI8 : dv1 `HI8 << sv1`HI8); end
 			`OPST:  begin dm[sv1] <= dv1; end // this may be wrong
