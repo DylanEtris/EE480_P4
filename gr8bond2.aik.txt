@@ -1,0 +1,77 @@
+;	Opcode is top 8 bits,
+;	but only top 4 are present in some cases
+
+.br $.d, .addr	:=	.this:4 (.addr-.):8 .d:4
+.alias .br 0xe bz bnz
+
+.cx $.d, .c8	:=	.this:4 .c8:8 .d:4
+.alias .cx 0xb ci8 cii cup
+
+.r2 $.d, $.s	:=	.this:8 .s:4 .d:4
+.alias .r2 { 0x70 addi addii muli mulii shi shii slti sltii
+	     0x60 addp addpp mulp mulpp 
+	     0x50 and or xor
+	     0x40 ld st }
+
+.r1 $.d		:=	.this:8 0:4 .d:4
+.alias .r1 { 0x30 anyi anyii negi negii
+	     0x20 i2p ii2pp p2i pp2ii invp invpp 
+	     0x10 not
+	     0x01 jr }
+
+trap		:=	0:8 0:4 0:4
+
+.const { r0	r1	r2	r3	r4	r5	r6	r7
+	 r8	r9	r10	at	rv	ra	fp	sp }
+
+.segment .text   16      0x10000 0       .VMEM
+.segment .data   16      0x10000 0       .VMEM
+
+;	Synthesized instructions
+;	(yes, these are harder than all the real instructions)
+
+ci $.d, .c16	?((.c16 >= -128) && (.c16 <= 127)) {
+		:=	ci8:4 .c16:8 .d:4	; ci8 $.d, .c16
+		}
+ci $.d, .c16	?((.c16 & 0xff) == ((.c16 >> 8) & 0xff)) {
+		:=	cii:4 .c16:8 .d:4	; cii $.d, .c16
+		}
+ci $.d, .c16	:= {	cii:4 .c16:8 .d:4	; cii $.d, .c16
+			cup:4 (.c16>>8):8 .d:4	; cup $.d, (.c16>>8)
+		}
+
+jmp .addr	?(((.addr - .) >= -128) && ((.addr - .) <= 127)) {
+		:=	bnz:4 (.addr-.):8 sp:4	; bnz $sp, .addr
+		}
+jmp .addr	?((.addr >= -128) && (.addr <= 127)) {
+		:=	ci8:4 .addr:8 at:4	; ci8 $at, .addr
+			jr:8 0:4 at:4		; jr $at
+		}
+jmp .addr	?((.addr & 0xff) == ((.addr >> 8) & 0xff)) {
+		:=	cii:4 .addr:8 at:4	; cii $at, .addr
+			jr:8 0:4 at:4		; jr $at
+		}
+jmp .addr	:= {	cii:4 .addr:8 at:4	; cii $at, .addr
+			cup:4 (.addr>>8):8 at:4	; cup $at, (.addr>>8)
+			jr:8 0:4 at:4		; jr $at
+		}
+
+.j $.d, .addr	?(((.addr - .) >= -128) && ((.addr - .) <= 127)) {
+		:=	.this:4 (.addr-.):8 .d:4	; b(same) $.d, .addr
+		}
+.j $.d, .addr	?((.addr >= -128) && (.addr <= 127)) {
+		:=	(.this^1):4 3:8 .d:0	; b(opposite) $.d, .+3
+			ci8:4 .addr:8 at:4	; ci8 $at, .addr
+			jr:8 0:4 at:4		; jr $at
+		}
+.j $.d, .addr	?((.addr & 0xff) == ((.addr >> 8) & 0xff)) {
+		:=	(.this^1):4 3:8 .d:0	; b(opposite) $.d, .+3
+			cii:4 .addr:8 at:4	; cii $at, .addr
+			jr:8 0:4 at:4		; jr $at
+		}
+.j $.d, .addr	:= {	(.this^1):4 4:8 .d:0	; b(opposite) $.d, .+4
+			cii:4 .addr:8 at:4	; cii $at, .addr
+			cup:4 (.addr>>8):8 at:4	; cup $at, (.addr>>8)
+			jr:8 0:4 at:4		; jr $at
+		}
+.alias	.j 0xe jz jnz
