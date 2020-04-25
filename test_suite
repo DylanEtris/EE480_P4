@@ -100,4 +100,12 @@ slti $1, $2
 bz $1, l18
 trap
 l18:
+ci8 $1, 1
+ci8 $2, -1
+i2f $1
+i2f $2
+fadd $1, $2
+bz $1, l19
+trap
+l19:
 trap
