@@ -218,7 +218,7 @@ always @(posedge clk) begin
 			`OPST:  begin dm[sv1] <= dv1; end // this may be wrong
 			`OPLD:  begin r[d1] = dm[sv1]; end
 			`OPBZ: begin
-				if (zflag == 1) begin
+				if (zflag != 0) begin
 					jump <= 1;
 					target <= const1 + pc - 2;
 				end
