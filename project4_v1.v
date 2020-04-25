@@ -156,10 +156,11 @@ reg jump;
 wire zflag;		// z flag
 wire pendz;
 wire wait1;
-wire `WORD f2iOut
+wire `WORD f2iOut, i2fOut;
 	
 reg `DATA target;	// target for branch or jump
 
+	i2f myi2f(i2fOut,dv1);
 	f2i myf2i(f2iOut, dv1);
 	assign zflag = (dv1 == 0);
 	assign pendz = (op0 == `OPTRAP && (op1 [7:4] === 4'hf || op1 [7:4] == 4'he || op1 == `OPJR));
@@ -247,7 +248,7 @@ always @(posedge clk) begin
 			//NEW, no OP yet
 			`OPF2PP: begin r[d1] <= dv1; end
 			//NEW
-			`OPI2F: begin i2f myi2f(r[d1],dv1); end
+			`OPI2F: begin r[d1] <= i2fOut; end
 			//IMPLEMENT POSIT
 			`OPII2PP: begin r[d1] <= dv1; end
 			//IMPLEMENT POSIT
