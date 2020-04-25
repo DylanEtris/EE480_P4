@@ -291,15 +291,15 @@ always @(posedge clk) begin
 		jump <= 0;
 	end else begin
 		casez (op1)
-			`OPADDI: begin r[d1] <= faddOut; end
+			`OPADDI: begin r[d1] <= dv1 + sv1; end
 			//IMPLEMENT FLOATING POINT
-			`OPADDF: begin r[d1] <= fmulOut; end
+			`OPADDF: begin r[d1] <= faddOut; end
 			`OPADDII: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
 			//IMPLEMENT POSIT
 			`OPADDPP: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
 			`OPMULI: begin r[d1] <= dv1 * sv1; end
 			//NEW
-			`OPMULF: begin r[d1] <= dv1 * sv1; end
+			`OPMULF: begin r[d1] <= fmulOut; end
 			`OPMULII: begin r[d1] <= dv1 * sv1; r[d1]`HI8 = dv1 `HI8 * sv1`HI8; end
 			//IMPLEMENT POSIT
 			`OPMULPP: begin r[d1] <= dv1 * sv1; r[d1]`HI8 = dv1 `HI8 * sv1`HI8; end
