@@ -225,13 +225,15 @@ reg jump;
 wire zflag;		// z flag
 wire pendz;
 wire wait1;
-wire `WORD f2iOut, i2fOut, frecipOut;
+wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut;
 	
 reg `DATA target;	// target for branch or jump
 
 	i2f myi2f(i2fOut,dv1);
 	f2i myf2i(f2iOut, dv1);
 	frecip myfrecip(frecipOut,dv1);
+	fmul myfmul(fmulOut, dv1, sv1);
+	fadd myfadd(faddOut, dv1, sv1);
 	assign zflag = (dv1 == 0);
 	assign pendz = (op0 == `OPTRAP && (op1 [7:4] === 4'hf || op1 [7:4] == 4'he || op1 == `OPJR));
 	assign wait1 = (d0 == d1 || s0 == d1 || s0 == s1 || (op0 == `OPTRAP && (op1 == `OPBZ || op1 == `OPBNZ)));
@@ -289,9 +291,9 @@ always @(posedge clk) begin
 		jump <= 0;
 	end else begin
 		casez (op1)
-			`OPADDI: begin r[d1] <= dv1 + sv1; end
+			`OPADDI: begin r[d1] <= faddOut; end
 			//IMPLEMENT FLOATING POINT
-			`OPADDF: begin r[d1] <= dv1 + sv1; end
+			`OPADDF: begin r[d1] <= fmulOut; end
 			`OPADDII: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
 			//IMPLEMENT POSIT
 			`OPADDPP: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
