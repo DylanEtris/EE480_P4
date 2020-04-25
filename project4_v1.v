@@ -113,6 +113,16 @@ assign f `FEXP = (i ? (128 + (14 - lead)) : 0);
 endmodule
 
 // Given by Dr. Dietz
+// Float set-less-than, 16-bit (1-bit result) torf=a<b
+module fslt(torf, a, b);
+output wire torf;
+input wire `FLOAT a, b;
+assign torf = (a `FSIGN && !(b `FSIGN)) ||
+	      (a `FSIGN && b `FSIGN && (a[14:0] > b[14:0])) ||
+	      (!(a `FSIGN) && !(b `FSIGN) && (a[14:0] < b[14:0]));
+endmodule
+
+// Given by Dr. Dietz
 // Float to integer conversion, 16 bit
 // Note: out-of-range values go to -32768 or 32767
 module f2i(i, f);
