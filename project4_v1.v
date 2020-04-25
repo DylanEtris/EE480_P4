@@ -123,6 +123,35 @@ assign torf = (a `FSIGN && !(b `FSIGN)) ||
 endmodule
 
 // Given by Dr. Dietz
+// Count leading zeros, 16-bit (5-bit result) d=lead0s(s)
+module lead0s(d, s);
+output wire [4:0] d;
+input wire `WORD s;
+wire [4:0] t;
+wire [7:0] s8;
+wire [3:0] s4;
+wire [1:0] s2;
+assign t[4] = 0;
+assign {t[3],s8} = ((|s[15:8]) ? {1'b0,s[15:8]} : {1'b1,s[7:0]});
+assign {t[2],s4} = ((|s8[7:4]) ? {1'b0,s8[7:4]} : {1'b1,s8[3:0]});
+assign {t[1],s2} = ((|s4[3:2]) ? {1'b0,s4[3:2]} : {1'b1,s4[1:0]});
+assign t[0] = !s2[1];
+assign d = (s ? t : 16);
+endmodule
+
+// Given by Dr. Dietz
+// Floating-point reciprocal, 16-bit r=1.0/a
+// Note: requires initialized inverse fraction lookup table
+module frecip(r, a);
+output wire `FLOAT r;
+input wire `FLOAT a;
+reg [6:0] look[127:0];
+initial $readmemh1(look);
+assign r `FSIGN = a `FSIGN;
+assign r `FEXP = 253 + (!(a `FFRAC)) - a `FEXP;
+assign r `FFRAC = look[a `FFRAC];
+endmodule
+// Given by Dr. Dietz
 // Float to integer conversion, 16 bit
 // Note: out-of-range values go to -32768 or 32767
 module f2i(i, f);
