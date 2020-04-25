@@ -99,6 +99,36 @@
 `define F32768  16'hc700  // -32768
 
 // Given by Dr. Dietz
+// Count leading zeros, 16-bit (5-bit result) d=lead0s(s)
+module lead0s(d, s);
+output wire [4:0] d;
+input wire `WORD s;
+wire [4:0] t;
+wire [7:0] s8;
+wire [3:0] s4;
+wire [1:0] s2;
+assign t[4] = 0;
+assign {t[3],s8} = ((|s[15:8]) ? {1'b0,s[15:8]} : {1'b1,s[7:0]});
+assign {t[2],s4} = ((|s8[7:4]) ? {1'b0,s8[7:4]} : {1'b1,s8[3:0]});
+assign {t[1],s2} = ((|s4[3:2]) ? {1'b0,s4[3:2]} : {1'b1,s4[1:0]});
+assign t[0] = !s2[1];
+assign d = (s ? t : 16);
+endmodule
+
+// Given by Dr. Dietz
+// Floating-point reciprocal, 16-bit r=1.0/a
+// Note: requires initialized inverse fraction lookup table
+module frecip(r, a);
+output wire `FLOAT r;
+input wire `FLOAT a;
+reg [6:0] look[127:0];
+initial $readmemh0(look);
+assign r `FSIGN = a `FSIGN;
+assign r `FEXP = 253 + (!(a `FFRAC)) - a `FEXP;
+assign r `FFRAC = look[a `FFRAC];
+endmodule
+
+// Given by Dr. Dietz
 // Integer to float conversion, 16 bit
 module i2f(f, i);
 output wire `FLOAT f;
@@ -245,7 +275,7 @@ always @(posedge clk) begin
 			//NEW, no OP yet
 			`OPF2PP: begin r[d1] <= dv1; end
 			//NEW
-			`OPI2F: begin i2f myi2f(r[d1],dv1); end
+			`OPI2F: begin i2f myi2f(r[d1],dv1);  end
 			//IMPLEMENT POSIT
 			`OPII2PP: begin r[d1] <= dv1; end
 			//IMPLEMENT POSIT
