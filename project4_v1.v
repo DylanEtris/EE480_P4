@@ -151,6 +151,7 @@ assign r `FSIGN = a `FSIGN;
 assign r `FEXP = 253 + (!(a `FFRAC)) - a `FEXP;
 assign r `FFRAC = look[a `FFRAC];
 endmodule
+
 // Given by Dr. Dietz
 // Float to integer conversion, 16 bit
 // Note: out-of-range values go to -32768 or 32767
@@ -185,12 +186,13 @@ reg jump;
 wire zflag;		// z flag
 wire pendz;
 wire wait1;
-wire `WORD f2iOut, i2fOut;
+wire `WORD f2iOut, i2fOut, frecipOut;
 	
 reg `DATA target;	// target for branch or jump
 
 	i2f myi2f(i2fOut,dv1);
 	f2i myf2i(f2iOut, dv1);
+	frecip myfrecip(frecipOut,dv1);
 	assign zflag = (dv1 == 0);
 	assign pendz = (op0 == `OPTRAP && (op1 [7:4] === 4'hf || op1 [7:4] == 4'he || op1 == `OPJR));
 	assign wait1 = (d0 == d1 || s0 == d1 || s0 == s1 || (op0 == `OPTRAP && (op1 == `OPBZ || op1 == `OPBNZ)));
@@ -285,7 +287,7 @@ always @(posedge clk) begin
 			//NEW
 			`OPPP2F: begin r[d1] <= dv1; end
 			//NEW
-			`OPINVF: begin r[d1] <= (dv1 == 1 ? 1 : 0); end
+			`OPINVF: begin r[d1] <= frecipOut; end
 			`OPINVPP: begin r[d1] `HI8 <= (dv1 `HI8 == 1 ? 1 : 0); r[d1] `LO8 <= (dv1 `LO8 == 1 ? 1 : 0); end
 			`OPNEGI: begin r[d1] <= -dv1; end
 			`OPNEGII: begin r[d1] `HI8 <= -dv1 `HI8; r[d1] `LO8 <= -dv1 `LO8; end
