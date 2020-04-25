@@ -84,6 +84,20 @@
 
 `define NOP 	8'h02
 
+//Definitions for Dr. Dietz modules
+// Field definitions
+`define	WORD	[15:0]	// generic machine word size
+`define	INT	signed [15:0]	// integer size
+`define FLOAT	[15:0]	// half-precision float size
+`define FSIGN	[15]	// sign bit
+`define FEXP	[14:7]	// exponent
+`define FFRAC	[6:0]	// fractional part (leading 1 implied)
+
+// Constants
+`define	FZERO	16'b0	  // float 0
+`define F32767  16'h46ff  // closest approx to 32767, actually 32640
+`define F32768  16'hc700  // -32768
+
 // Given by Dr. Dietz
 // Integer to float conversion, 16 bit
 module i2f(f, i);
