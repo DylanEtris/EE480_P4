@@ -84,7 +84,19 @@
 
 `define NOP 	8'h02
 
-
+// Given by Dr. Dietz
+// Integer to float conversion, 16 bit
+module i2f(f, i);
+output wire `FLOAT f;
+input wire `INT i;
+wire [4:0] lead;
+wire `WORD pos;
+assign pos = (i[15] ? (-i) : i);
+lead0s m0(lead, pos);
+assign f `FFRAC = (i ? ({pos, 8'b0} >> (16 - lead)) : 0);
+assign f `FSIGN = i[15];
+assign f `FEXP = (i ? (128 + (14 - lead)) : 0);
+endmodule
 
 
 module processor(halt, reset, clk);
@@ -196,7 +208,7 @@ always @(posedge clk) begin
 			//NEW, no OP yet
 			`OPF2PP: begin r[d1] <= dv1; end
 			//NEW
-			`OPI2F: begin r[d1] <= dv1; end
+			`OPI2F: begin i2f(r[d1],dv1); end
 			//IMPLEMENT POSIT
 			`OPII2PP: begin r[d1] <= dv1; end
 			//IMPLEMENT POSIT
