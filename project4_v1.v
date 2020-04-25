@@ -98,6 +98,19 @@ assign f `FSIGN = i[15];
 assign f `FEXP = (i ? (128 + (14 - lead)) : 0);
 endmodule
 
+// Given by Dr. Dietz
+// Float to integer conversion, 16 bit
+// Note: out-of-range values go to -32768 or 32767
+module f2i(i, f);
+output wire `INT i;
+input wire `FLOAT f;
+wire `FLOAT ui;
+wire tiny, big;
+fslt m0(tiny, f, `F32768);
+fslt m1(big, `F32767, f);
+assign ui = {1'b1, f `FFRAC, 16'b0} >> ((128+22) - f `FEXP);
+assign i = (tiny ? 0 : (big ? 32767 : (f `FSIGN ? (-ui) : ui)));
+endmodule
 
 module processor(halt, reset, clk);
 output reg halt;
@@ -204,11 +217,11 @@ always @(posedge clk) begin
 			`OPSLTI: begin r[d1] <= dv1 < sv1; end
 			`OPSLTII: begin r[d1] `HIGH8 <= dv1 `HIGH8 < sv1 `HIGH8; r[d1] `LOW8 <= dv1 `LOW8 < sv1 `LOW8; end
 			//NEW, no OP yet
-			`OPF2I: begin r[d1] <= dv1; end
+			`OPF2I: begin f2i myf2i(r[d1],dv1); end
 			//NEW, no OP yet
 			`OPF2PP: begin r[d1] <= dv1; end
 			//NEW
-			`OPI2F: begin i2f(r[d1],dv1); end
+			`OPI2F: begin i2f myi2f(r[d1],dv1); end
 			//IMPLEMENT POSIT
 			`OPII2PP: begin r[d1] <= dv1; end
 			//IMPLEMENT POSIT
