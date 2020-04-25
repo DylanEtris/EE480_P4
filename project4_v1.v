@@ -186,9 +186,12 @@ reg jump;
 wire zflag;		// z flag
 wire pendz;
 wire wait1;
-
+wire `WORD f2iOut, i2fOut;
+	
 reg `DATA target;	// target for branch or jump
 
+	i2f myi2f(i2fOut,dv1);
+	f2i myf2i(f2iOut, dv1);
 	assign zflag = (dv1 == 0);
 	assign pendz = (op0 == `OPTRAP && (op1 [7:4] === 4'hf || op1 [7:4] == 4'he || op1 == `OPJR));
 	assign wait1 = (d0 == d1 || s0 == d1 || s0 == s1 || (op0 == `OPTRAP && (op1 == `OPBZ || op1 == `OPBNZ)));
@@ -262,7 +265,7 @@ always @(posedge clk) begin
 			`OPOR: begin r[d1] <= dv1 | sv1; end
 			`OPXOR: begin r[d1] <= dv1 ^ sv1; end
 			//NEW
-			`OPDUP: begin r[d1] <= sv1 end
+			`OPDUP: begin r[d1] <= sv1; end
 			`OPSHI: begin r[d1] <= (sv1 > 32767 ? dv1 >> -sv1 : dv1 << sv1); end
 			`OPNOT: begin r[d1] <= ~dv1; end
 			`OPANYI: begin r[d1] <= (dv1 ? -1 : 0); end
@@ -271,15 +274,15 @@ always @(posedge clk) begin
 			`OPSLTI: begin r[d1] <= dv1 < sv1; end
 			`OPSLTII: begin r[d1] `HIGH8 <= dv1 `HIGH8 < sv1 `HIGH8; r[d1] `LOW8 <= dv1 `LOW8 < sv1 `LOW8; end
 			//NEW, no OP yet
-			`OPF2I: begin f2i myf2i(r[d1],dv1); end
+			`OPF2I: begin r[d1] <= f2iOut; end
 			//NEW, no OP yet
 			`OPF2PP: begin r[d1] <= dv1; end
 			//NEW
-			`OPI2F: begin i2f myi2f(r[d1],dv1);  end
+			`OPI2F: begin r[d1] <= i2fOut; end
 			//IMPLEMENT POSIT
 			`OPII2PP: begin r[d1] <= dv1; end
 			//IMPLEMENT POSIT
-			`OPP2II: begin r[d1] <= dv1; end
+			`OPPP2II: begin r[d1] <= dv1; end
 			//NEW
 			`OPPP2F: begin r[d1] <= dv1; end
 			//NEW
@@ -288,7 +291,7 @@ always @(posedge clk) begin
 			`OPNEGI: begin r[d1] <= -dv1; end
 			`OPNEGII: begin r[d1] `HI8 <= -dv1 `HI8; r[d1] `LO8 <= -dv1 `LO8; end
 			//NEW
-			`OPNEGF: begin r[d1] <= -dv1 end
+			`OPNEGF: begin r[d1] <= -dv1; end
 			`OPCI8:	begin r[d1] <=  ((const1 & 8'h80) ? 16'hff00 : 0) | (const1 & 8'hff); end
 			`OPCII: begin r[d1] `HI8 <= const1; r[d1] `LO8 <= const1; end
 			`OPCUP: begin r[d1] `HI8 <= const1; end
