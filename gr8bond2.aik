@@ -9,13 +9,14 @@
 
 .r2 $.d, $.s	:=	.this:8 .s:4 .d:4
 .alias .r2 { 0x70 addi addii muli mulii shi shii slti sltii
-	     0x60 addp addpp mulp mulpp 
-	     0x50 and or xor
+	     0x60 addf addpp mulf mulpp 
+	     0x50 and or xor dup
 	     0x40 ld st }
 
 .r1 $.d		:=	.this:8 0:4 .d:4
-.alias .r1 { 0x30 anyi anyii negi negii
-	     0x20 i2p ii2pp p2i pp2ii invp invpp 
+.alias .r1 { 0x30 anyi anyii negi negii negf
+	     0x21 f2pp pp2f pp2ii invf invpp 
+	     0x17 f2i i2f ii2pp
 	     0x10 not
 	     0x01 jr }
 
