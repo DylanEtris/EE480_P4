@@ -334,8 +334,8 @@ always @(posedge clk) begin
 			`OPINVPP: begin r[d1] `HI8 <= (dv1 `HI8 == 1 ? 1 : 0); r[d1] `LO8 <= (dv1 `LO8 == 1 ? 1 : 0); end
 			`OPNEGI: begin r[d1] <= -dv1; end
 			`OPNEGII: begin r[d1] `HI8 <= -dv1 `HI8; r[d1] `LO8 <= -dv1 `LO8; end
-			//NEW
-			`OPNEGF: begin r[d1] <= -dv1; end
+			//NEW, Flips the top bit
+			`OPNEGF: begin r[d1] <= dv1 ^ b'1000000000000000; end
 			`OPCI8:	begin r[d1] <=  ((const1 & 8'h80) ? 16'hff00 : 0) | (const1 & 8'hff); end
 			`OPCII: begin r[d1] `HI8 <= const1; r[d1] `LO8 <= const1; end
 			`OPCUP: begin r[d1] `HI8 <= const1; end
