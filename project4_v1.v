@@ -236,7 +236,7 @@ reg `DATA target;	// target for branch or jump
 	fadd myfadd(faddOut, dv1, sv1);
 	assign zflag = (dv1 == 0);
 	assign pendz = (op0 == `OPTRAP && (op1 [7:4] === 4'hf || op1 [7:4] == 4'he || op1 == `OPJR));
-	assign wait1 = (d0 == d1 || s0 == d1 || s0 == s1 || (op0 == `OPTRAP && (op1 == `OPBZ || op1 == `OPBNZ)));
+	assign wait1 = (d0 == d1 || s0 == d1 || (op0 == `OPTRAP && (op1 == `OPBZ || op1 == `OPBNZ)));
 	assign tpc = (jump ? target : pc);
 
 always @(reset) begin
