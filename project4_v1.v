@@ -273,12 +273,14 @@ always @(posedge clk) begin
 		dv1 <= r[d0];
 		d1 <= 4'bz;
     		sv1 <= r[s0];
+		s1 <= s0;
   	end else begin
     		// all good, get operands (even if not needed)
 		const1 <= const0;
     		dv1 <= r[d0];
 		d1 <= d0;
     		sv1 <= r[s0];
+		s1 <= s0;
     		op1 <= op0;
   end
 
