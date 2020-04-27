@@ -1,0 +1,37 @@
+
+.text
+ci8 $1, 0
+i2f $1
+f2i $1
+bz $1, l2
+trap
+l2:
+ci8 $1, 1
+i2f $1
+f2i $1
+bnz $1, l3
+trap
+trap
+trap
+l3:
+ci8 $1, 1
+ci8 $2, 0
+i2f $1
+i2f $2
+mulf $1, $2
+f2i $1
+bz $1, l19
+trap
+trap
+trap
+l19:
+trap
+ci8 $1, 1
+ci8 $2, -1
+shi $1, $2
+bz $1, l20
+trap
+trap
+trap
+l20:
+trap
