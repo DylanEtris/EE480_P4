@@ -356,7 +356,7 @@ always @(posedge clk) begin
 			`OPADDF: begin r[d1] <= faddOut; end
 			`OPADDII: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
 			//IMPLEMENT POSIT
-			`OPADDPP: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
+			`OPADDPP: begin r[d1] <= addppOut; end
 			`OPMULI: begin r[d1] <= dv1 * sv1; end
 			//NEW
 			`OPMULF: begin r[d1] <= fmulOut; end
