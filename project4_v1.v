@@ -233,7 +233,7 @@ module pp2ii(i,p);
 output `myINTS i;
 input `myPOSITS p;
 i2p p1(i `LO8,p `LO8);
-i2p p2(i `HI8,p `HI8)
+i2p p2(i `HI8,p `HI8);
 endmodule
 
 // Looks up corresponding 8 bit integer from 8 bit posit
@@ -243,6 +243,10 @@ input wire `myPOSIT p;
 reg [15:8] look[255:0];
 initial $readmemh2(look);
 assign i = look[p];
+endmodule
+
+//low 8 bits of posit to 16 bit float
+module pp2f();
 endmodule
 
 module processor(halt, reset, clk);
