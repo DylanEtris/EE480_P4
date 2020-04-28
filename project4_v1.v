@@ -205,6 +205,24 @@ assign ui = {1'b1, f `FFRAC, 16'b0} >> ((128+22) - f `FEXP);
 assign i = (tiny ? 0 : (big ? 32767 : (f `FSIGN ? (-ui) : ui)));
 endmodule
 
+// Looks up corresponding 8 bit posit from 8 bit integer
+module i2p(i,p);
+input wire `INT i;
+output wire `POSIT p;
+reg [7:0] look[255:0];
+initial $readmemh2(look);
+assign p = look[i];
+endmodule
+
+// Looks up corresponding 8 bit integer from 8 bit posit
+module p2i(i,p);
+output wire `INT i;
+input wire `POSIT p;
+reg [15:8] look[255:0];
+initial $readmemh2(look);
+assign i = look[p];
+endmodule
+
 module processor(halt, reset, clk);
 output reg halt;
 input reset, clk;
