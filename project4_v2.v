@@ -249,6 +249,22 @@ endmodule
 module pp2f();
 endmodule
 
+module addp8(p1, p2, sum);
+input wire `myPOSIT p1, p2;
+output wire `myPOSIT sum;
+reg 'myPOSITS append;
+reg [23:16] lookup[65535:0];
+initial $readmemh3(lookup);
+assign sum = lookup({p1, p2});
+endmodule
+
+module addpp(result, ppd, pps);
+input wire [15:0] ppd, pps;
+output wire [15:0] result;
+addp8 lo8(ppd [7:0], pps[7:0], result[7:0]);
+addp8 hi8(ppd [15:8], pps[15:8], result[15:8]);
+endmodule
+
 module processor(halt, reset, clk);
 output reg halt;
 input reset, clk;
@@ -269,7 +285,7 @@ reg jump;
 wire zflag;		// z flag
 wire pendz;
 wire wait1;
-wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut, ii2ppOut, pp2iiOut;
+wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut, ii2ppOut, pp2iiOut, addppOut;
 	
 reg `DATA target;	// target for branch or jump
 
@@ -280,6 +296,8 @@ reg `DATA target;	// target for branch or jump
 	fadd myfadd(faddOut, dv1, sv1);
 	ii2pp myii2pp(ii2ppOut, dv1);
 	pp2ii mypp2ii(pp2iiOut, dv1);
+	addpp myaddpp(addppOut, dv1, sv1);
+
 	assign zflag = (dv1 == 0);
 	assign pendz = (op0 == `OPTRAP && (op1 [7:4] === 4'hf || op1 [7:4] == 4'he || op1 == `OPJR));
 	assign wait1 = (d0 == d1 || s0 == d1 || (op0 == `OPTRAP && (op1 == `OPBZ || op1 == `OPBNZ)));
@@ -344,7 +362,7 @@ always @(posedge clk) begin
 			`OPADDF: begin r[d1] <= faddOut; end
 			`OPADDII: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
 			//IMPLEMENT POSIT
-			`OPADDPP: begin r[d1] `HI8 <= dv1 `HI8 + sv1 `HI8; r[d1] `LO8 = dv1 `LO8 + sv1 `LO8; end
+			`OPADDPP: begin r[d1] <= addppOut; end
 			`OPMULI: begin r[d1] <= dv1 * sv1; end
 			//NEW
 			`OPMULF: begin r[d1] <= fmulOut; end
