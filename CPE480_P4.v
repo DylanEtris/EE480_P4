@@ -212,17 +212,17 @@ assign i = (tiny ? 0 : (big ? 32767 : (f `FSIGN ? (-ui) : ui)));
 endmodule
 
 // control for calling i2p
-module ii2pp(i,p);
-input `myINTS i;
-output `myPOSITS p;
+module ii2pp(p, i);
+input `WORD i;
+output `WORD p;
 i2p p1(i `LO8,p `LO8);
 i2p p2(i `HI8,p `HI8);
 endmodule
 
 // Looks up corresponding 8 bit posit from 8 bit integer
-module i2p(i,p);
-input wire `myINT i;
-output wire `myPOSIT p;
+module i2p(p,i);
+input wire `HALF i;
+output wire `HALF p;
 reg [7:0] look[255:0];
 initial $readmemh2(look);
 assign p = look[i];
@@ -230,16 +230,16 @@ endmodule
 
 // control for calling i2p
 module pp2ii(i,p);
-output `myINTS i;
-input `myPOSITS p;
+output `WORD i;
+input `WORD p;
 i2p p1(i `LO8,p `LO8);
 i2p p2(i `HI8,p `HI8);
 endmodule
 
 // Looks up corresponding 8 bit integer from 8 bit posit
 module p2i(i,p);
-output wire `myINT i;
-input wire `myPOSIT p;
+output wire `HALF i;
+input wire `HALF p;
 reg [15:8] look[255:0];
 initial $readmemh2(look);
 assign i = look[p];
@@ -271,7 +271,7 @@ reg `DATA target;	// target for branch or jump
 
 	i2f myi2f(i2fOut,dv1);
 	f2i myf2i(f2iOut, dv1);
-	frecip myfrecip(frecipOut,dv1);
+	frecip myfrecip(frecipOut, dv1);
 	fmul myfmul(fmulOut, dv1, sv1);
 	fadd myfadd(faddOut, dv1, sv1);
 	ii2pp myii2pp(ii2ppOut, dv1);
