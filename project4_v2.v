@@ -216,7 +216,7 @@ module ii2pp(i,p);
 input `myINTS i;
 output `myPOSITS p;
 i2p p1(i `LO8,p `LO8);
-i2p p2(i `HI8,p `HI8)
+i2p p2(i `HI8,p `HI8);
 endmodule
 
 // Looks up corresponding 8 bit posit from 8 bit integer
