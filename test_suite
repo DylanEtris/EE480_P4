@@ -154,4 +154,52 @@ shi $1, $2
 bz $1, l25
 trap
 l25:
+cii $1, 0
+ii2pp $1
+pp2ii $1
+bz $1, l26
+trap
+l26:
+cii $1, 1
+ii2pp $1
+pp2ii $1
+bnz $1, l27
+trap
+l27:
+cii $1, 1
+cii $2, 0
+ii2pp $1
+ii2pp $2
+mulpp $1, $2
+pp2ii $1
+bz l28
+trap
+l28:
+cii $1, 0
+cii $2, 0
+ii2pp $1
+ii2pp $2
+addpp $1, $2
+pp2ii $1
+bz l29
+trap
+l29:
+cii $1, 1
+cii $2, 0
+ii2pp $1
+ii2pp $2
+addpp $1, $2
+pp2ii $1
+bnz l30
+trap
+l30:
+cii $1, 1
+cii $2, -1
+ii2pp $1
+ii2pp $2
+addpp $1, $2
+pp2ii $1
+bz l31
+trap
+l31:
 trap
