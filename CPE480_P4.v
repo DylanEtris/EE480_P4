@@ -84,6 +84,12 @@
 
 `define NOP 	8'h02
 
+//my field definitions for modules
+`define myPOSITS [15:0]
+`define myINTS   [15:0]
+`define myINT    [7:0]
+`define myPOSIT  [7:0]
+
 //Definitions for Dr. Dietz modules
 // Field definitions
 `define	WORD	[15:0]	// generic machine word size
@@ -205,6 +211,40 @@ assign ui = {1'b1, f `FFRAC, 16'b0} >> ((128+22) - f `FEXP);
 assign i = (tiny ? 0 : (big ? 32767 : (f `FSIGN ? (-ui) : ui)));
 endmodule
 
+// control for calling i2p
+module ii2pp(i,p);
+input `myINTS i;
+output `myPOSITS p;
+i2p p1(i `LO8,p `LO8);
+i2p p2(i `HI8,p `HI8);
+endmodule
+
+// Looks up corresponding 8 bit posit from 8 bit integer
+module i2p(i,p);
+input wire `myINT i;
+output wire `myPOSIT p;
+reg [7:0] look[255:0];
+initial $readmemh2(look);
+assign p = look[i];
+endmodule
+
+// control for calling i2p
+module pp2ii(i,p);
+output `myINTS i;
+input `myPOSITS p;
+i2p p1(i `LO8,p `LO8);
+i2p p2(i `HI8,p `HI8);
+endmodule
+
+// Looks up corresponding 8 bit integer from 8 bit posit
+module p2i(i,p);
+output wire `myINT i;
+input wire `myPOSIT p;
+reg [15:8] look[255:0];
+initial $readmemh2(look);
+assign i = look[p];
+endmodule
+
 module processor(halt, reset, clk);
 output reg halt;
 input reset, clk;
@@ -225,7 +265,7 @@ reg jump;
 wire zflag;		// z flag
 wire pendz;
 wire wait1;
-wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut;
+wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut, ii2ppOut, pp2iiOut;
 	
 reg `DATA target;	// target for branch or jump
 
@@ -234,6 +274,8 @@ reg `DATA target;	// target for branch or jump
 	frecip myfrecip(frecipOut,dv1);
 	fmul myfmul(fmulOut, dv1, sv1);
 	fadd myfadd(faddOut, dv1, sv1);
+	ii2pp myii2pp(ii2ppOut, dv1);
+	pp2ii mypp2ii(pp2iiOut, dv1);
 	assign zflag = (dv1 == 0);
 	assign pendz = (op0 == `OPTRAP && (op1 [7:4] === 4'hf || op1 [7:4] == 4'he || op1 == `OPJR));
 	assign wait1 = (d0 == d1 || s0 == d1 || (op0 == `OPTRAP && (op1 == `OPBZ || op1 == `OPBNZ)));
@@ -324,9 +366,9 @@ always @(posedge clk) begin
 			//NEW
 			`OPI2F: begin r[d1] <= i2fOut; end
 			//IMPLEMENT POSIT
-			`OPII2PP: begin r[d1] <= dv1; end
+			`OPII2PP: begin r[d1] <= ii2ppOut; end
 			//IMPLEMENT POSIT
-			`OPPP2II: begin r[d1] <= dv1; end
+			`OPPP2II: begin r[d1] <= pp2iiOut; end
 			//NEW
 			`OPPP2F: begin r[d1] <= dv1; end
 			//NEW
@@ -334,8 +376,8 @@ always @(posedge clk) begin
 			`OPINVPP: begin r[d1] `HI8 <= (dv1 `HI8 == 1 ? 1 : 0); r[d1] `LO8 <= (dv1 `LO8 == 1 ? 1 : 0); end
 			`OPNEGI: begin r[d1] <= -dv1; end
 			`OPNEGII: begin r[d1] `HI8 <= -dv1 `HI8; r[d1] `LO8 <= -dv1 `LO8; end
-			//NEW
-			`OPNEGF: begin r[d1] <= -dv1; end
+			//NEW, Flips the top bit
+			`OPNEGF: begin r[d1] <= dv1 ^ b'1000000000000000; end
 			`OPCI8:	begin r[d1] <=  ((const1 & 8'h80) ? 16'hff00 : 0) | (const1 & 8'hff); end
 			`OPCII: begin r[d1] `HI8 <= const1; r[d1] `LO8 <= const1; end
 			`OPCUP: begin r[d1] `HI8 <= const1; end
