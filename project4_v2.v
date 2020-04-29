@@ -282,7 +282,7 @@ endmodule
 
 module mulp8(p1, p2, product);
 input wire `myPOSIT p1, p2;
-output wire `myPOSIT sum;
+output wire `myPOSIT product;
 reg [15:8] look[65535:0];
 initial $readmemh3(look);
 assign product = look[{p1, p2}];
