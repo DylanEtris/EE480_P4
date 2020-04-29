@@ -295,6 +295,14 @@ mulp8 lo8(ppd `LO8, pps `LO8, result `LO8);
 mulp8 hi8(ppd `HI8, pps `HI8, result `HI8);
 endmodule
 
+module f2pp(p,f);
+input wire `WORD f;
+output wire `WORD p;
+reg [7:0] look[65535:0];
+initial $readmemh3(look);
+assign product = look[p `LO8];
+endmodule
+
 module processor(halt, reset, clk);
 output reg halt;
 input reset, clk;
@@ -315,7 +323,7 @@ reg jump;
 wire zflag;		// z flag
 wire pendz;
 wire wait1;
-wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut, ii2ppOut, pp2iiOut, addppOut, mulppOut, pp2fOut, invppOut;
+wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut, ii2ppOut, pp2iiOut, addppOut, mulppOut, pp2fOut, invppOut, f2ppOut;
 	
 reg `DATA target;	// target for branch or jump
 
@@ -329,6 +337,7 @@ reg `DATA target;	// target for branch or jump
 	addpp myaddpp(addppOut, dv1, sv1);
 	mulpp mymulpp(mulppOut, dv1, sv1);
 	pp2f mypp2f(pp2fOut, dv1);
+	f2pp myf2pp(f2ppOut, dv1);
 	invpp myinvpp(invppOut, dv1);
 	assign zflag = (dv1 == 0);
 	assign pendz = (op0 == `OPTRAP && (op1 [7:4] === 4'hf || op1 [7:4] == 4'he || op1 == `OPJR));
@@ -416,7 +425,7 @@ always @(posedge clk) begin
 			//NEW, no OP yet
 			`OPF2I: begin r[d1] <= f2iOut; end
 			//NEW, no OP yet
-			`OPF2PP: begin r[d1] <= dv1; end
+			`OPF2PP: begin r[d1] <= f2ppOut; end
 			//NEW
 			`OPI2F: begin r[d1] <= i2fOut; end
 			//IMPLEMENT POSIT
