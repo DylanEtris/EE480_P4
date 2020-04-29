@@ -278,6 +278,21 @@ addp8 lo8(ppd [7:0], pps[7:0], result[7:0]);
 addp8 hi8(ppd [15:8], pps[15:8], result[15:8]);
 endmodule
 
+module mulp8(p1, p2, product);
+input wire `myPOSIT p1, p2;
+output wire `myPOSIT sum;
+reg [15:8] look[65535:0];
+initial $readmemh3(look);
+assign product = look[{p1, p2}];
+endmodule
+
+module mulpp(result, ppd, pps);
+input wire `WORD ppd, pps;
+output wire `WORD result;
+mulp8 lo8(ppd `LO8, pps `LO8, result `LO8);
+mulp8 hi8(ppd `HI8, pps `HI8, result `HI8);
+endmodule
+
 module processor(halt, reset, clk);
 output reg halt;
 input reset, clk;
@@ -298,7 +313,7 @@ reg jump;
 wire zflag;		// z flag
 wire pendz;
 wire wait1;
-wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut, ii2ppOut, pp2iiOut, addppOut, pp2fOut, invppOut;
+wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut, ii2ppOut, pp2iiOut, addppOut, mulppOut, pp2fOut, invppOut;
 	
 reg `DATA target;	// target for branch or jump
 
@@ -310,6 +325,7 @@ reg `DATA target;	// target for branch or jump
 	ii2pp myii2pp(ii2ppOut, dv1);
 	pp2ii mypp2ii(pp2iiOut, dv1);
 	addpp myaddpp(addppOut, dv1, sv1);
+	mulpp mymulpp(mulppOut, dv1, sv1);
 	pp2f mypp2f(pp2fOut, dv1);
 	invpp myinvpp(invppOut, dv1);
 	assign zflag = (dv1 == 0);
@@ -382,7 +398,7 @@ always @(posedge clk) begin
 			`OPMULF: begin r[d1] <= fmulOut; end
 			`OPMULII: begin r[d1] <= dv1 * sv1; r[d1]`HI8 = dv1 `HI8 * sv1`HI8; end
 			//IMPLEMENT POSIT
-			`OPMULPP: begin r[d1] <= dv1 * sv1; r[d1]`HI8 = dv1 `HI8 * sv1`HI8; end
+			`OPMULPP: begin r[d1] <= mulppOut; end
 			`OPAND: begin r[d1] <= dv1 & sv1; end
 			`OPOR: begin r[d1] <= dv1 | sv1; end
 			`OPXOR: begin r[d1] <= dv1 ^ sv1; end
