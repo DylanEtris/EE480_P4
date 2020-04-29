@@ -266,9 +266,11 @@ endmodule
 module addp8(p1, p2, sum);
 input wire `myPOSIT p1, p2;
 output wire `myPOSIT sum;
-reg [23:16] look[65535:0];
+wire [23:0] search;
+reg [23:0] look[65535:0];
 initial $readmemh3(look);
-assign sum = look[{p1, p2}];
+assign search = look[{p1[7:0], p2[7:0]}];
+assign sum = search[23:16];
 endmodule
 
 module addpp(result, ppd, pps);
