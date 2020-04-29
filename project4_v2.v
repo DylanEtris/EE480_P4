@@ -251,10 +251,17 @@ input wire `WORD p;
 output wire `WORD f;
 reg [31:16] look[255:0];
 initial $readmemh2(look);
-assign f = look[p `LO8]
+assign f = look[p `LO8];
 endmodule
 
-
+// reciprocal of posit
+module invpp(recip, p);
+output wire `WORD recip;
+input wire `WORD p;
+reg [39:32] look[255:0];
+initial $readmemh2(look);
+assign recip = {look[p `HI8], look[p `LO8]};
+endmodule
 	
 module addp8(p1, p2, sum);
 input wire `myPOSIT p1, p2;
@@ -291,7 +298,7 @@ reg jump;
 wire zflag;		// z flag
 wire pendz;
 wire wait1;
-wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut, ii2ppOut, pp2iiOut, addppOut, pp2fOut;
+wire `WORD f2iOut, i2fOut, frecipOut, fmulOut, faddOut, ii2ppOut, pp2iiOut, addppOut, pp2fOut, invppOut;
 	
 reg `DATA target;	// target for branch or jump
 
@@ -304,6 +311,7 @@ reg `DATA target;	// target for branch or jump
 	pp2ii mypp2ii(pp2iiOut, dv1);
 	addpp myaddpp(addppOut, dv1, sv1);
 	pp2f mypp2f(pp2fOut, dv1);
+	invpp myinvpp(invppOut, dv1);
 	assign zflag = (dv1 == 0);
 	assign pendz = (op0 == `OPTRAP && (op1 [7:4] === 4'hf || op1 [7:4] == 4'he || op1 == `OPJR));
 	assign wait1 = (d0 == d1 || s0 == d1 || (op0 == `OPTRAP && (op1 == `OPBZ || op1 == `OPBNZ)));
@@ -401,7 +409,7 @@ always @(posedge clk) begin
 			`OPPP2F: begin r[d1] <= pp2fOut; end
 			//NEW
 			`OPINVF: begin r[d1] <= frecipOut; end
-			`OPINVPP: begin r[d1] `HI8 <= (dv1 `HI8 == 1 ? 1 : 0); r[d1] `LO8 <= (dv1 `LO8 == 1 ? 1 : 0); end
+			`OPINVPP: begin r[d1] <= invppOut; end
 			`OPNEGI: begin r[d1] <= -dv1; end
 			`OPNEGII: begin r[d1] `HI8 <= -dv1 `HI8; r[d1] `LO8 <= -dv1 `LO8; end
 			//NEW, Flips the top bit
