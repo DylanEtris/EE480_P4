@@ -8,9 +8,9 @@
 `define REGNAME	[3:0]  //16 registers to choose from
 `define WORD	[15:0] //16-bit words
 `define HALF	[7:0]	//8-bit half-words
-`define NIB		[3:0]	//4-bit nibble
-`define HI8		[15:8]
-`define LO8		[7:0]
+`define NIB	[3:0]	//4-bit nibble
+`define HI8	[15:8]
+`define LO8	[7:0]
 `define HIGH8	[15:8]
 `define HIGH4 [15:12]
 `define LOW8	[7:0]
@@ -285,7 +285,7 @@ input wire `myPOSIT p1, p2;
 output wire `myPOSIT product;
 reg [15:8] look[65535:0];
 initial $readmemh3(look);
-assign product = look[{p1 `LO8, p2 `LO8}];
+assign product = look[{p1, p2}];
 endmodule
 
 module mulpp(result, ppd, pps);
