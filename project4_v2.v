@@ -285,7 +285,7 @@ input wire `myPOSIT p1, p2;
 output wire `myPOSIT product;
 reg [15:8] look[65535:0];
 initial $readmemh3(look);
-assign product = look[{p1, p2}];
+assign product = look[{p1 `LO8, p2 `LO8}];
 endmodule
 
 module mulpp(result, ppd, pps);
