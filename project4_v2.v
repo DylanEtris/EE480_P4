@@ -300,7 +300,7 @@ input wire `WORD f;
 output wire `WORD p;
 reg [7:0] look[65535:0];
 initial $readmemh3(look);
-assign product = look[p `LO8];
+assign p = {look[f], look[f]};
 endmodule
 
 module processor(halt, reset, clk);
