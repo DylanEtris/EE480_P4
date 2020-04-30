@@ -166,4 +166,40 @@ pp2ii $1
 bnz $1, l27
 trap
 l27:
+cii $2, 0
+dup $1, $2
+bz $1, l28
+trap
+l28:
+cii $1, 1
+cii $2, -1
+ii2pp $1
+ii2pp $2
+addpp $1, $2
+pp2ii $1
+bz $1, l29
+trap
+l29:
+cii $1, 1
+cii $2, 0
+ii2pp $1
+ii2pp $2
+mulpp $1, $2
+pp2ii $1
+bz $1, l30
+trap
+l30:
+ci8 $1, 1
+i2f $1
+f2pp $1
+bnz $1, l31
+trap
+l31:
+cii $1, 0
+cii $1, 1
+ii2pp $1
+pp2f $1
+bnz $1, l32
+trap
+l32:
 trap
