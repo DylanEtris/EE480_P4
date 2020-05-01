@@ -280,21 +280,14 @@ addp8 lo8(ppd [7:0], pps[7:0], result[7:0]);
 addp8 hi8(ppd [15:8], pps[15:8], result[15:8]);
 endmodule
 
-module mulp8(p1, p2, product);
-input wire `myPOSIT p1, p2;
-output wire `myPOSIT product;
-reg [15:8] look[65535:0];
-initial $readmemh3(look);
-assign product = look[{p1, p2}];
-endmodule
-
 module mulpp(result, ppd, pps);
 input wire `WORD ppd, pps;
 output wire `WORD result;
-mulp8 lo8(ppd `LO8, pps `LO8, result `LO8);
-mulp8 hi8(ppd `HI8, pps `HI8, result `HI8);
+reg [15:8] look[65535:0];
+initial $readmemh3(look);
+assign result = {look[{ppd `LO8, pps `LO8}],look[{ppd `HI8, pps `HI8}]};
 endmodule
-
+		
 module f2pp(p,f);
 input wire `WORD f;
 output wire `WORD p;
