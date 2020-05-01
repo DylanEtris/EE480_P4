@@ -283,9 +283,11 @@ endmodule
 module mulpp(result, ppd, pps);
 input wire `WORD ppd, pps;
 output wire `WORD result;
-reg [15:8] look[65535:0];
+wire [15:0] search;
+reg [15:0] look[65535:0];
 initial $readmemh3(look);
-assign result = {look[{ppd `HI8, pps `HI8}],look[{ppd `LO8, pps `LO8}]};
+assign search = {look[{ppd `HI8, pps `HI8}],look[{ppd `LO8, pps `LO8}]};
+assign result = search[15:8];
 endmodule
 		
 module f2pp(p,f);
