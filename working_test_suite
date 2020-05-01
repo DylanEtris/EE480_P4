@@ -190,8 +190,7 @@ bnz $1, l30
 trap
 l30:
 cii $1, 0
-cii $2, 0
-ii2pp $2
+cii $2, 4
 mulpp $1, $2
 bz $1, l31
 trap
