@@ -189,18 +189,27 @@ pp2ii $1
 bnz $1, l30
 trap
 l30:
+cii $1, 0
+cii $2, 0
+ii2pp $1
+ii2pp $2
+mulpp $1, $2
+pp2ii $1
+bz $1, l31
+trap
+l31:
 ci8 $1, 1
 i2f $1
 f2pp $1
 pp2ii $1
-bnz $1, l31
+bnz $1, l32
 trap
-l31:
+l32:
 cii $1, 0
 cii $1, 1
 ii2pp $1
 pp2f $1
-bnz $1, l32
+bnz $1, l33
 trap
-l32:
+l33:
 trap
