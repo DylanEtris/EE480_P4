@@ -285,7 +285,7 @@ input wire `WORD ppd, pps;
 output wire `WORD result;
 reg [15:8] look[65535:0];
 initial $readmemh3(look);
-assign result = {look[{ppd `LO8, pps `LO8}],look[{ppd `HI8, pps `HI8}]};
+assign result = {look[{ppd `HI8, pps `HI8}],look[{ppd `LO8, pps `LO8}]};
 endmodule
 		
 module f2pp(p,f);
