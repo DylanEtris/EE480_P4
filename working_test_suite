@@ -180,8 +180,8 @@ pp2ii $1
 bz $1, l29
 trap
 l29:
-cii $1, 1
-cii $2, 1
+cii $1, 3
+cii $2, 7
 ii2pp $1
 ii2pp $2
 mulpp $1, $2
@@ -191,10 +191,8 @@ trap
 l30:
 cii $1, 0
 cii $2, 0
-ii2pp $1
 ii2pp $2
 mulpp $1, $2
-pp2ii $1
 bz $1, l31
 trap
 l31:
